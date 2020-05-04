@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<con:soapui-project id="86a5ff52-5df4-4696-b5fd-9ab668ae670c" activeEnvironment="Default" name="SampleFramework" resourceRoot="" soapui-version="5.5.0" xmlns:con="http://eviware.com/soapui/config"><con:settings/><con:interface xsi:type="con:RestService" id="bd43e7ce-f798-4eb8-ae54-7a4f1e612749" wadlVersion="http://wadl.dev.java.net/2009/02" name="https://restcountries.eu" type="rest" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:settings/><con:definitionCache type="TEXT" rootPart=""/><con:endpoints><con:endpoint>https://restcountries.eu</con:endpoint></con:endpoints><con:resource name="Name" path="/rest/v2/name/{name}" id="c77a4e8e-9aa2-433e-9f45-d567c856ad79"><con:settings/><con:parameters><con:parameter><con:name>name</con:name><con:value>name</con:value><con:style>TEMPLATE</con:style><con:default>name</con:default><con:path xsi:nil="true"/><con:description xsi:nil="true"/></con:parameter></con:parameters><con:method name="Name 1" id="1a04201e-1726-4c83-9427-7f8b98ce7e12" method="GET"><con:settings/><con:parameters/><con:representation type="RESPONSE"><con:mediaType>application/json;charset=utf-8</con:mediaType><con:status>200</con:status><con:params/><con:element>Response</con:element></con:representation><con:representation type="FAULT"><con:mediaType>application/json;charset=utf-8</con:mediaType><con:status>404</con:status><con:params/><con:element xmlns:ind="https://restcountries.eu/rest/v2/name/India">ind:Fault</con:element></con:representation><con:representation type="FAULT"><con:mediaType xsi:nil="true"/><con:status>404</con:status><con:params/><con:element>data</con:element></con:representation><con:representation type="FAULT"><con:mediaType xsi:nil="true"/><con:status>404</con:status><con:params/><con:element>data</con:element></con:representation><con:representation type="FAULT"><con:mediaType xsi:nil="true"/><con:status>404</con:status><con:params/><con:element>data</con:element></con:representation><con:representation type="FAULT"><con:mediaType xsi:nil="true"/><con:status>404</con:status><con:params/><con:element>data</con:element></con:representation><con:representation type="FAULT"><con:mediaType xsi:nil="true"/><con:status>404</con:status><con:params/><con:element>data</con:element></con:representation><con:representation type="FAULT"><con:mediaType xsi:nil="true"/><con:status>404</con:status><con:params/><con:element>data</con:element></con:representation><con:representation type="FAULT"><con:mediaType xsi:nil="true"/><con:status>404</con:status><con:params/><con:element>data</con:element></con:representation><con:request name="getCountryDetailsByName" id="6c07c31c-e179-48d4-945e-c7b61950a338" mediaType="application/json"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:endpoint>https://restcountries.eu</con:endpoint><con:request/><con:originalUri>https://restcountries.eu/rest/v2/name/India</con:originalUri><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:parameters><entry key="name" value="India" xmlns="http://eviware.com/soapui/config"/></con:parameters><con:parameterOrder><con:entry>name</con:entry></con:parameterOrder></con:request></con:method></con:resource></con:interface><con:testSuite id="315258f9-c9f1-4d07-aa74-958880a7df50" name="RegressionSuite"><con:settings/><con:runType>SEQUENTIAL</con:runType><con:testCase id="b01a1e06-fa8e-4119-ae31-0481d4d7292c" failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="TestRunner" searchProperties="true"><con:settings/><con:testStep type="groovy" name="runme" id="a52dcbb4-d7f4-45c4-9f1c-49d4ebde9cde"><con:settings/><con:config><script>
+
+// IMPORT THE LIBRARIES WE NEED
+
+import com.eviware.soapui.support.XmlHolder
+import jxl.*
+import jxl.write.*
+
+def myTestCase = context.testCase //myTestCase contains the test case
+
+def size //Variables used to handle the loop and to move inside the file
+def projectPath = new com.eviware.soapui.support.GroovyUtils(context).projectPath //get the project location directory dynamically
+
+log.info(projectPath)
+
+Workbook workbook1 = Workbook.getWorkbook(new File(projectPath+"\\soapui.xls")) //file containing the data
+//WritableWorkbook workbook = Workbook.createWorkbook(new File("C:\\Users\\asakthiv\\Desktop\\soapui.xls"))
+
+Sheet sheet1 = workbook1.getSheet(0) //Index 0 will read the first sheet from the workbook, you can also specify the sheet name with "Sheet1"
+//WritableSheet sheet = workbook.getSheet("")
+//Sheet sheet1 = workbook1.getSheet("Sheet1")
+
+size= sheet1.getRows().toInteger() //get the number of rows, each row is a data set
+columns = sheet1.getColumns().toInteger()
+
+log.info( "rows count :"+size) 
+log.info(" columns count :"+ columns)
+
+
+
+
+
+for( int i=1;i &lt;size ;i++){
+		testRunner.testCase.testSuite.setPropertyValue("result","")
+		if( sheet1.getCell(2,i).getContents()=="Yes"){
+		//log.info("i value is :"+ i +" content is :"+ value) //columnnumber , rownumber
+	
+		testRunner.testCase.testSuite.setPropertyValue("testName", sheet1.getCell(0,i).getContents())
+		testRunner.testCase.testSuite.project.setPropertyValue("Iteration",sheet1.getCell(1,i).getContents())
+		testRunner.testCase.testSuite.setPropertyValue("execute", sheet1.getCell(2,i).getContents())
+		
+		testRunner.testCase.testSuite.setPropertyValue("countryCode", sheet1.getCell(3,i).getContents())
+
+		def tcase = testRunner.testCase.testSuite.testCases[testRunner.testCase.testSuite.getPropertyValue("testName")]
+		def prop = new com.eviware.soapui.support.types.StringToObjectMap()
+		runner = tcase.run(prop,true)
+		log.info( "i ---->"+ i)
+		Thread.sleep(5000)
+		}
+	if(testRunner.testCase.testSuite.getPropertyValue("result") == "pass"){
+		log.info("Test Case passed")
+		//Label label = new Label(3,i,"Pass")
+		//sheet.addCell(label)
+	}
+	else{
+		log.info("Test Case failed")
+		//Label label = new Label(3,i,"Fail")
+		//sheet.addCell(label)
+	}
+	
+		//tcase.getTestStepByName("getCountryDetailsByName").setPropertyValue("name",sheet1.getCell(0,i).getContents())
+		//def status=tcase.getTestStepByName("getCountryDetailsByName").run(testRunner,context)
+		//def result = status.getStatus().toString()
+		//log.info("Result :"+result)
+		//def project= testRunner.testCase.testSuite.project;
+		//def tcase = project.testSuites["RealSuite"].testCases[testRunner.testCase.testSuite.getPropertyValue("testName")];
+	
+}
+
+//workbook.write()
+//workbook.close()
+
+</script></con:config></con:testStep><con:properties/></con:testCase><con:testCase id="88ce22b6-187d-4dfd-bd47-2ce3dd041f8d" failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="TestCase1" searchProperties="true"><con:settings/><con:testStep type="restrequest" name="getCountryDetailsByName" id="50483388-b3c0-4d4a-a033-cb82d001c067"><con:settings/><con:config service="https://restcountries.eu" resourcePath="/rest/v2/name/{name}" methodName="Name 1" xsi:type="con:RestRequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:restRequest name="getCountryDetailsByName" id="38a1d86d-f077-4c44-90eb-3ec69662d358" mediaType="application/json"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:endpoint>https://restcountries.eu</con:endpoint><con:request/><con:originalUri>https://restcountries.eu/rest/v2/name/India</con:originalUri><con:assertion type="GroovyScriptAssertion" id="f78e12bb-e051-4e9c-9749-729f60f3c479" name="Script Assertion"><con:configuration><scriptText>import groovy.json.JsonSlurper
+
+def responseMessage = messageExchange.response.responseContent
+def json = new JsonSlurper().parseText(responseMessage)
+
+assert json.name.toString() != null
+</scriptText></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:parameters><entry key="name" value="${#TestSuite#countryCode}" xmlns="http://eviware.com/soapui/config"/></con:parameters><con:parameterOrder><con:entry>name</con:entry></con:parameterOrder></con:restRequest></con:config></con:testStep><con:testStep type="transfer" name="Copy of CountryCodeTransfer" id="680ff245-d646-4886-96e2-0a7730ae5317"><con:settings/><con:config xsi:type="con:PropertyTransfersStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:transfers setNullOnMissingSource="true" transferTextContent="true" failOnError="true" ignoreEmpty="false" transferToAll="false" entitize="false" transferChildNodes="false"><con:name>CountryCode</con:name><con:sourceType>Response</con:sourceType><con:sourceStep>getCountryDetailsByName</con:sourceStep><con:sourcePath>$.[0].altSpellings[0]</con:sourcePath><con:targetType>name</con:targetType><con:targetStep>getCountryDetailsFromCode</con:targetStep><con:type>JSONPATH</con:type><con:upgraded>true</con:upgraded></con:transfers></con:config></con:testStep><con:testStep type="restrequest" name="getCountryDetailsFromCode" id="c7dbc641-685d-4bac-9748-993becc6abf8"><con:settings/><con:config service="https://restcountries.eu" resourcePath="/rest/v2/name/{name}" methodName="Name 1" xsi:type="con:RestRequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:restRequest name="Copy of getCountryDetailsFromCode" id="1ee635d0-8938-4761-bfb8-99e61a52d27b" mediaType="application/json"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:endpoint>https://restcountries.eu</con:endpoint><con:request/><con:originalUri>https://restcountries.eu/rest/v2/alpha/IN</con:originalUri><con:assertion type="GroovyScriptAssertion" id="a287d8a7-0b49-4584-9401-e8695586ac64" name="Script Assertion"><con:configuration><scriptText>import groovy.json.JsonSlurper
+
+def responseMessage = messageExchange.response.responseContent
+def json = new JsonSlurper().parseText(responseMessage)
+
+assert json.name.toString() != null
+def value = context.expand('${#TestSuite#countryCode}')
+//assert json.name.toString() == value</scriptText></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:parameters>
+  <con:entry key="code" value="AD"/>
+  <con:entry key="name" value="AD"/>
+</con:parameters><con:parameterOrder><con:entry>code</con:entry></con:parameterOrder></con:restRequest></con:config></con:testStep><con:testStep type="groovy" name="Logger" id="7fd02e43-f1fb-4598-998c-5baa3ead77e6"><con:settings/><con:config><script>testRunner.testCase.testSuite.setPropertyValue("result","pass")</script></con:config></con:testStep><con:tearDownScript>// Code to execute the GenerateCSVReport test step
+testRunner.testCase.testSuite.project.testSuites["Library"].testCases["Reporting_Utility"].
+testSteps["GenerateCSVReport"].run(testRunner, context);</con:tearDownScript><con:properties/></con:testCase><con:properties><con:property><con:name>result</con:name><con:value>pass</con:value></con:property><con:property><con:name>testName</con:name><con:value>TestCase1</con:value></con:property><con:property><con:name>execute</con:name><con:value>Yes</con:value></con:property><con:property><con:name>countryCode</con:name><con:value>Andorra</con:value></con:property></con:properties></con:testSuite><con:testSuite id="d3790e86-bdb4-414b-8956-e4625e2e2de5" name="Library" disabled="true"><con:settings/><con:runType>SEQUENTIAL</con:runType><con:testCase id="d7c9ea59-bdab-40c2-ad9d-850a25b943fd" failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="Reporting_Utility" searchProperties="true"><con:settings/><con:testStep type="groovy" name="GenerateCSVReport" id="58b876db-8128-4086-9b3d-c82d90c56822"><con:settings/><con:config><script>// Try-catch block to handle exceptions
+try {
+// 1. Create a "SoapUIResults" folder in the project path 
+      // Retrieve the project root folder
+      def projectPath = new com.eviware.soapui.support.GroovyUtils(context).projectPath
+      // Specify a folder inside project root to store the results
+      String folderPath = projectPath + "/SoapUIResults";
+      // Create a File object for the specified path
+      def resultFolder = new File(folderPath);
+      // Check for existence of folder and create a folder
+      if(!resultFolder.exists())
+      {
+        resultFolder.mkdirs();
+      }
+/* ------------------------------------------------------------------------------- */
+// 2. Create a subfolder (with timestamp) to store the request-response local copy 
+      // Retrieve the latest execution date-time
+      Date d = new Date();
+      def executionDate = d.format("dd-MMM-yyyy HH_mm");
+      // Specify the subfolder path with name Request-Response_CurrentTimeStamp
+      String subfolderPath1 = folderPath+ "/Request-Response_"+executionDate;
+      // Create this sub-folder
+      new File(subfolderPath1).mkdirs();
+/* ------------------------------------------------------------------------------- */
+// 3. Create another subfolder "CSV Reports" to store the reports file 
+      // Specify the subfolder path with name CSV Reports
+      String subfolderPath2 = folderPath+ "/CSV Reports";
+      // Create this sub-folder
+      new File(subfolderPath2).mkdirs();
+/* ------------------------------------------------------------------------------- */
+// 4. Create a Report.csv file inside the CSV Reports folder 
+      // Create a File object for Report csv file (with timestamp)
+      def reportFile = new File(subfolderPath2, "Report_"+executionDate+".csv");
+      // Check for existence of report file and create a file
+      if(!reportFile.exists())
+      {
+        reportFile.createNewFile();
+        // Create required column names in the report file
+        reportFile.write('"Test Suite","Test Case","Test Step","Step Type","Step Status",'
+                        +'"Result message","Execution Date"');
+      }
+/* ------------------------------------------------------------------------------- */
+// 5. Inserting data in the file
+      // Iterate over all the test steps results
+  for(stepResult in testRunner.getResults())
+  {
+    // Retrieve Test Suite name
+   def testSuite = testRunner.testCase.testSuite.name;
+   // Retrieve Test Case name
+   def testCase = testRunner.testCase.name;
+   // Retrieve Test Step
+   def testStep = stepResult.getTestStep();
+   // Retrieve Test Step name
+   def testStepName = testStep.name
+   // Retrieve Test Step type
+   def type = testStep.config.type
+   // Retrieve Test Step status
+   def status = stepResult.getStatus()
+   // Creating new line in report file
+   reportFile.append('\n');
+   // Write all the necessary information in the file
+   reportFile.append('"' + testSuite + '",');
+   reportFile.append('"' + testCase + '",');
+   reportFile.append('"' + testStepName + '",');
+   reportFile.append('"' + type + '",');
+   reportFile.append('"' + status + '",');
+   // Retrieve the test result messages
+   reportFile.append('"');
+   for(resMessage in stepResult.getMessages())
+   {
+     // Write messages and separate multiple messages by new line
+     reportFile.append('Message:' + resMessage + '\n');
+   }
+   reportFile.append('",');
+   //Write executionDate in the file
+   reportFile.append('"' + executionDate + '",');
+/* ------------------------------------------------------------------------------- */
+// 6. Extract the request and response and save it to external file
+      // Verify if the test step type is request: SOAP project or restrequest: REST project
+        if((type=="request").or(type=="restrequest"))
+        {
+          // Extract the request from the test step
+          def extRequest = testStep.properties["Request"].value;    
+      // Create a file in the reports folder and write the request
+      // Naming convention: request_TestSuiteName_TestCaseName_TestStepName.txt
+      def iterationvalue = testRunner.testCase.testSuite.project.getPropertyValue("Iteration")
+      def requestFile=subfolderPath1+"/request_"+testSuite+"_"+testCase+"_"+testStepName+"_"+iterationvalue+".txt";
+      def rqfile = new File(requestFile);
+      rqfile.write(extRequest, "UTF-8");
+      // Extract the response from the test step
+      def extResponse = stepResult.getResponseContent();    
+      // Create a file in the reports folder and write the response
+      // Naming convention: response_TestSuiteName_TestCaseName_TestStepName.txt
+      def responseFile=subfolderPath1+"/response_"+testSuite+"_"+testCase+"_"+testStepName+"_"+iterationvalue+".txt";
+      def rsfile = new File(responseFile);
+      rsfile.write(extResponse, "UTF-8");
+     }
+   }
+ }
+catch(exc)
+{
+   log.error("Exception happened: " + exc.toString());
+}</script></con:config></con:testStep><con:properties/></con:testCase><con:properties/></con:testSuite><con:properties><con:property><con:name>Iteration</con:name><con:value>3</con:value></con:property></con:properties><con:wssContainer/><con:oAuth2ProfileContainer/><con:oAuth1ProfileContainer/><con:sensitiveInformation/></con:soapui-project>
